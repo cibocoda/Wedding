@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.gmf.wedding.IntroActivity"
+    tools:context="com.gmf.wedding.Top1Activity"
     android:background="@color/white">
 
     <ImageView
@@ -16,6 +16,24 @@
         android:layout_height="match_parent"
         android:contentDescription="@string/app_name"
         android:layout_margin="@dimen/activity_splash_image_margin"
-        app:srcCompat="@drawable/intro"
+        app:srcCompat="@mipmap/ic_launcher"
         android:layout_gravity="center" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:gravity="bottom">
+
+        <Button
+            android:id="@+id/BT_go_project"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/project"
+            android:background="@drawable/button_style_1"
+            style="?android:attr/borderlessButtonStyle"/>
+
+    </LinearLayout>
+
 </RelativeLayout>

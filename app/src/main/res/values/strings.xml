@@ -1,3 +1,51 @@
 <resources>
-    <string name="app_name">Wedding</string>
+    <string name="app_name">Emilia Hsiao</string>
+    <string name="app_subname">Wedding</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="TV_user">使用者代號：</string>
+    <string name="TV_pw">使用者密碼：</string>
+
+    <string name="ET_hint">請輸入</string>
+
+    <string name="login">登入</string>
+    <string name="cancel">取消</string>
+
+    <string name="project">專案</string>
+    <string name="manage">管理</string>
+    <string name="accounting">會計</string>
+    <string name="settings">設定</string>
+
+    <string name="dress_wedding">婚紗</string>
+    <string name="dress_maxi">晚宴服</string>
+    <string name="dress_cocktail">宴會服</string>
+    <string name="dress_white">白色小洋裝</string>
+    <string name="dress_black">黑色小洋裝</string>
+    <string name="dress_green">綠色小洋裝</string>
+    <string name="dress_red">紅色小洋裝</string>
+    <string name="dress_pink">粉紅色小洋裝</string>
+    <string name="dress_yellow">黃色小洋裝</string>
+
+    <string name="dc_buy">買</string>
+    <string name="dc_rent">租</string>
+    <string name="dc_both">買+租</string>
+
+    <string name="project_dresses">禮服</string>
+    <string name="project_photographers">攝影師</string>
+    <string name="project_makeupartists">彩妝師</string>
+    <string name="project_views">拍攝景點</string>
+    <string name="project_arrangements">婚禮佈置</string>
+    <string name="project_locations">宴會地點</string>
+    <string name="project_hosts">主持人與場控</string>
+    <string name="project_bands">伴唱樂團</string>
+    <string name="project_packages">優惠套裝</string>
+
+    <string name="drawer_open">側邊欄開啟</string>
+    <string name="drawer_close">側邊欄關閉</string>
+    <string name="title_activity_project">ProjectActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

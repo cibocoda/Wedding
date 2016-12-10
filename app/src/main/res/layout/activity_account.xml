@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.gmf.wedding.AccountActivity"
+    android:background="@color/white">
+
+    <!-- 載入logo當成背景圖 -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/app_name"
+        android:layout_margin="@dimen/activity_splash_image_margin"
+        app:srcCompat="@mipmap/ic_launcher"
+        android:layout_gravity="center" />
+
+    <!-- 最上層設定操作欄位整體的背景白色略為透明，透明度alpha 0.8 -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:padding="12dp"
+        android:background="@color/white"
+        android:alpha="0.8">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/TV_user"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:gravity="end"/>
+
+            <EditText
+                android:id="@+id/ET_user_login"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:hint="@string/ET_hint"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:background="@drawable/shape_input_login_red"
+                android:maxLines="1"/> <!-- background使用自定義的樣式 -->
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/TV_pw"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:gravity="end"/>
+
+            <EditText
+                android:id="@+id/ET_pw_login"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:inputType="textPassword"
+                android:hint="@string/ET_hint"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:background="@drawable/shape_input_login_red"
+                android:maxLines="1"/> <!-- background使用自定義的樣式 -->
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- 按鈕背景使用自定義樣式，沒按顯示黑框，按下顯示紅框，style將系統預設邊框取消 -->
+            <Button
+                android:id="@+id/BT_cancel_login"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:background="@drawable/button_style_1"
+                style="?android:attr/borderlessButtonStyle"/>
+
+            <Button
+                android:id="@+id/BT_login_login"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/login"
+                android:textColor="@color/red"
+                android:background="@drawable/button_style_1"
+                style="?android:attr/borderlessButtonStyle"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

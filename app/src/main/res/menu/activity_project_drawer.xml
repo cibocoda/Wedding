@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_dresses"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_dresses" />
+        <item
+            android:id="@+id/nav_photographers"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_photographers" />
+        <item
+            android:id="@+id/nav_makeupartists"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_makeupartists" />
+        <item
+            android:id="@+id/nav_views"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_views" />
+        <item
+            android:id="@+id/nav_arrangements"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_arrangements" />
+        <item
+            android:id="@+id/nav_locations"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_locations" />
+        <item
+            android:id="@+id/nav_hosts"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_hosts" />
+        <item
+            android:id="@+id/nav_bands"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_bands" />
+        <item
+            android:id="@+id/nav_packages"
+            android:icon="@mipmap/ic_launcher"
+            android:title="@string/project_packages" />
+    </group>
+
+    <!-- <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Share" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Send" />
+        </menu>
+    </item> -->
+
+</menu>
