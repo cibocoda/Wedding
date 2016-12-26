@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">@color/pink</color><!-- colorPrimary">#3F51B5 -->
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">@color/pink</color><!-- #3F51B5 -->
+    <color name="colorPrimaryDark">@color/pink</color><!-- #303F9F -->
     <color name="colorAccent">#FF4081</color>
 
     <color name="white">#FFFFFF</color>

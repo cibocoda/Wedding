@@ -1,7 +1,10 @@
 package com.gmf.wedding;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -10,12 +13,29 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class AccountActivity extends AppCompatActivity {
+    public static final int CONNECTION_TIMEOUT = 10000;
+    public static final int READ_TIMEOUT = 15000;
+    private EditText et_user_login, et_pw_login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
+
+        et_user_login = (EditText)findViewById(R.id.ET_user_login);
+        et_pw_login = (EditText)findViewById(R.id.ET_pw_login);
 
         InitItems();
     }
@@ -43,21 +63,119 @@ public class AccountActivity extends AppCompatActivity {
 	 * 兩組帳號/密碼分別是 boss/boss 以及 emilia/emilia，
 	 * 兩組帳號密碼之外按下登入鍵則出現提示訊息*/
     private void CheckUsers(){
-        EditText et_user_login, et_pw_login;
-        String username_login, pw_login;
-        et_user_login = (EditText)findViewById(R.id.ET_user_login);
-        username_login = et_user_login.getText().toString();
-        et_pw_login = (EditText)findViewById(R.id.ET_pw_login);
-        pw_login = et_pw_login.getText().toString();
+        final String username_login = et_user_login.getText().toString();
+        final String pw_login = et_pw_login.getText().toString();
 
-        if("boss".equals(username_login) && "boss".equals(pw_login)){
-            GoBoss();
+        new AsyncLogin().execute(username_login,pw_login);
+    }
+
+    private class AsyncLogin extends AsyncTask<String, String, String> {
+        ProgressDialog pdLoading = new ProgressDialog(AccountActivity.this);
+        HttpURLConnection conn;
+        URL url = null;
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+
+            //this method will be running on UI thread
+            pdLoading.setMessage("\tLoading...");
+            pdLoading.setCancelable(false);
+            pdLoading.show();
         }
-        else if("emilia".equals(username_login) && "emilia".equals(pw_login)){
-            GoGuest();
+
+        @Override
+        protected String doInBackground(String... params) {
+            try{
+                // Enter URL address where your php file resides
+                url = new URL("http://192.168.1.103:80/wedding_management/login.inc.php");
+
+            }catch (MalformedURLException e){
+                e.printStackTrace();
+                return "exception";
+            }
+
+            try{
+                // Setup HttpURLConnection class to send and receive data from php and mysql
+                conn = (HttpURLConnection)url.openConnection();
+                conn.setReadTimeout(READ_TIMEOUT);
+                conn.setConnectTimeout(CONNECTION_TIMEOUT);
+                conn.setRequestMethod("POST");
+
+                // setDoInput and setDoOutput method depict handling of both send and receive
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                // Append parameters to URL
+                Uri.Builder builder = new Uri.Builder()
+                        .appendQueryParameter("username", params[0])
+                        .appendQueryParameter("password", params[1]);
+                String query = builder.build().getEncodedQuery();
+
+                // Open connection for sending data
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+                conn.connect();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "exception";
+            }
+
+            try{
+                int response_code = conn.getResponseCode();
+
+                // Check if successful connection made
+                if (response_code == HttpURLConnection.HTTP_OK){
+                    // Read data sent from server
+                    InputStream input = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null){
+                        result.append(line);
+                    }
+
+                    // Pass data to onPostExecute method
+                    return(result.toString());
+                }else {
+                    return("unsuccessful");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "exception";
+            }finally{
+                conn.disconnect();
+            }
         }
-        else{
-            Toast.makeText(this, "請輸入帳號密碼或按取消", Toast.LENGTH_SHORT).show();
+
+        @Override
+        protected void onPostExecute(String result){
+            //this method will be running on UI thread
+
+            pdLoading.dismiss();
+
+            if(result.equalsIgnoreCase("boss")){
+                GoBoss();
+            }else if(result.equalsIgnoreCase("true")){
+                /* Here launching another activity when login successful. If you persist login state
+                use sharedPreferences of Android. and logout button to clear sharedPreferences.
+                 */
+
+                GoGuest();
+            }else if (result.equalsIgnoreCase("false")){
+                // If username and password does not match display a error message
+                Toast.makeText(AccountActivity.this, "帳號或密碼錯誤", Toast.LENGTH_LONG).show();
+            }else if (result.equalsIgnoreCase("exception") || result.equalsIgnoreCase("unsuccessful")){
+                Toast.makeText(AccountActivity.this, "連線問題", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
