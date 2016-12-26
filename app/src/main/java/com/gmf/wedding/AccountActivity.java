@@ -28,6 +28,7 @@ public class AccountActivity extends AppCompatActivity {
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
     private EditText et_user_login, et_pw_login;
+    private String username_login, pw_login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +64,8 @@ public class AccountActivity extends AppCompatActivity {
 	 * 兩組帳號/密碼分別是 boss/boss 以及 emilia/emilia，
 	 * 兩組帳號密碼之外按下登入鍵則出現提示訊息*/
     private void CheckUsers(){
-        final String username_login = et_user_login.getText().toString();
-        final String pw_login = et_pw_login.getText().toString();
+        username_login = et_user_login.getText().toString();
+        pw_login = et_pw_login.getText().toString();
 
         new AsyncLogin().execute(username_login,pw_login);
     }
@@ -163,12 +164,13 @@ public class AccountActivity extends AppCompatActivity {
             pdLoading.dismiss();
 
             if(result.equalsIgnoreCase("boss")){
+                FragmentUtils.sLoginNameIs = username_login;
                 GoBoss();
             }else if(result.equalsIgnoreCase("true")){
                 /* Here launching another activity when login successful. If you persist login state
                 use sharedPreferences of Android. and logout button to clear sharedPreferences.
                  */
-
+                FragmentUtils.sLoginNameIs = username_login;
                 GoGuest();
             }else if (result.equalsIgnoreCase("false")){
                 // If username and password does not match display a error message

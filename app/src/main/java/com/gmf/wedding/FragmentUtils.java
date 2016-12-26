@@ -6,4 +6,5 @@ package com.gmf.wedding;
 
 public class FragmentUtils {
     public static boolean sDisableFragmentAnimations = false;
+    public static String sLoginNameIs = "";
 }
