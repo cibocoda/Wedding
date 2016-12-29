@@ -90,7 +90,7 @@ public class DressesFragment extends Fragment {
         protected String doInBackground(String... params) {
             try{
                 // Enter URL address where your php file resides
-                url = new URL("http://192.168.1.103/wedding_management/DBproducts.php");
+                url = new URL("http://zoptest.esy.es/wedding_management/DBproducts.php");
 
             }catch (MalformedURLException e){
                 e.printStackTrace();
@@ -236,9 +236,9 @@ public class DressesFragment extends Fragment {
             LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.MATCH_PARENT);  //將寬度設為100dp
             layoutParams1.setMargins(2, 4, 2, 0); // 讓每個小圖產生間隔，左2dp、上4dp、右2dp、下0dp
             iv.setLayoutParams(layoutParams1);
-            iv.setScaleType(ImageView.ScaleType.FIT_CENTER); //ScaleType.CENTER_INSIDE會讓圖符合邊框的長或寬，整張納入並且置中
+            iv.setScaleType(ImageView.ScaleType.CENTER_INSIDE); //ScaleType.CENTER_INSIDE會讓圖符合邊框的長或寬，整張納入並且置中
             String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(cdressList)).get(i)+".png";
-            Picasso.with(getActivity()).load(imageUrl).into(iv);
+            Picasso.with(getActivity()).load(imageUrl).placeholder( R.drawable.progress_animation ).into(iv);
             iv.setBackgroundResource(R.color.white); //設置 android:background
             iv.setClickable(true); //設置android:clickable="true"，讓小圖能夠點選
             dresses.addView(iv);
@@ -286,9 +286,9 @@ public class DressesFragment extends Fragment {
             ImageView imageView = (ImageView) itemView.findViewById(R.id.IV_dresses);
             LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             imageView.setLayoutParams(layoutParams1);
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             final String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(mcdressList)).get(position)+".png";
             Picasso.with(getActivity()).load(imageUrl).into(imageView);
-            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             imageView.setClickable(true);
             imageView.setOnClickListener(new ImageView.OnClickListener() {
                 @Override
