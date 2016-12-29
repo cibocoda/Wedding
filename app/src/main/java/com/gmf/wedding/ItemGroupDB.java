@@ -12,7 +12,7 @@ public class ItemGroupDB {
             R.string.dress_red, R.string.dress_pink, R.string.dress_yellow
     };
 
-    //婚紗的小圖
+    /*//婚紗的小圖
     int dress_wedding_icon[]={
             R.drawable.wedding_icon1, R.drawable.wedding_icon2,
             R.drawable.wedding_icon3, R.drawable.wedding_icon4,R.drawable.wedding_icon5
@@ -103,7 +103,7 @@ public class ItemGroupDB {
     int dress_cblack[]={
             R.drawable.cblack1, R.drawable.cblack2,
             R.drawable.cblack3, R.drawable.cblack4, R.drawable.cblack5
-    };
+    };*/
 
     //確認頁面的狀態圖
     int dc_stats[]={

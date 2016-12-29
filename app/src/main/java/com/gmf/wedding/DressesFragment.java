@@ -1,7 +1,9 @@
 package com.gmf.wedding;
 
-
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,7 +18,27 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,9 +46,11 @@ import android.widget.LinearLayout;
 public class DressesFragment extends Fragment {
     private ViewPager viewPager;
     private LinearLayout dresses_list, dresses;
-    private int[] imgIdArray, iconIdArray, cdressIdArray;
-    private int[] dressesList = new ItemGroupDB().dresses_list; //新增陣列引用ItemGroudDB的禮服種類
-    private int opreDressList = 0;
+    private ArrayList<String> categoryArray = new ArrayList<>();
+    private Map<String,ArrayList<String>> productsArray = new HashMap<String,ArrayList<String>>();
+    public static final int CONNECTION_TIMEOUT = 10000;
+    public static final int READ_TIMEOUT = 15000;
+    private int opreDressList = 0, opreDress = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,83 +64,159 @@ public class DressesFragment extends Fragment {
         dresses = (LinearLayout) rootView.findViewById(R.id.LL_dresses);
         dresses_list = (LinearLayout) rootView.findViewById(R.id.LL_dresses_list);
 
-        InitViewPager(opreDressList);
-        InitDressesList();
+        ((ProjectActivity)getActivity()).drawerLock(false);
+
+        new AsyncProducts().execute("true");
 
         return rootView;
     }
 
-    public void InitDressesList(){
-        for(int i=0; i<dressesList.length; i++){
-            Button button = new Button(getContext());
-            LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT); //設定值的layout_width跟layout_height
-            button.setLayoutParams(layoutParams1); //將上面的設定值，設定入新增的按鈕裡
-            button.setBackgroundResource(R.drawable.button_style_2); //設定背景
-            String str = getResources().getString(dressesList[i]); //從禮服種類裡面取出文字
-            button.setText(str); //設定按鈕文字為取出的文字
-            button.setGravity(Gravity.CENTER); //設定文字位置置中
-            dresses_list.addView(button); //將按鈕新增到 dresses_list 這個 LinearLayout 裡
-            InitButtons(button, i);
+    public class AsyncProducts extends AsyncTask<String, String, String> {
+        ProgressDialog pdLoading = new ProgressDialog(getActivity());
+        HttpURLConnection conn;
+        URL url = null;
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+
+            //this method will be running on UI thread
+            pdLoading.setMessage("\tLoading...");
+            pdLoading.setCancelable(false);
+            pdLoading.show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            try{
+                // Enter URL address where your php file resides
+                url = new URL("http://192.168.1.103/wedding_management/DBproducts.php");
+
+            }catch (MalformedURLException e){
+                e.printStackTrace();
+                return "exception";
+            }
+
+            try{
+                // Setup HttpURLConnection class to send and receive data from php and mysql
+                conn = (HttpURLConnection)url.openConnection();
+                conn.setReadTimeout(READ_TIMEOUT);
+                conn.setConnectTimeout(CONNECTION_TIMEOUT);
+
+                // setDoInput and setDoOutput method depict handling of both send and receive
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                // Append parameters to URL
+                Uri.Builder builder = new Uri.Builder()
+                        .appendQueryParameter("ask_server", params[0]);
+                String query = builder.build().getEncodedQuery();
+
+                // Open connection for sending data
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+
+                conn.connect();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "exception";
+            }
+
+            try{
+                int response_code = conn.getResponseCode();
+
+                // Check if successful connection made
+                if (response_code == HttpURLConnection.HTTP_OK){
+                    // Read data sent from server
+                    InputStream input = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null){
+                        result.append(line);
+                    }
+
+                    // Pass data to onPostExecute method
+                    return(result.toString());
+                }else {
+                    return("unsuccessful");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "exception";
+            }finally{
+                conn.disconnect();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            //this method will be running on UI thread
+
+            pdLoading.dismiss();
+
+            if (result.equalsIgnoreCase("exception") || result.equalsIgnoreCase("unsuccessful")){
+                Toast.makeText(getActivity(), "連線問題", Toast.LENGTH_LONG).show();
+            }else{
+                try {
+                    JSONArray jsonArray = new JSONArray(result);
+                    String dupeWord = null;
+                    int temp_num = 0;
+                    for(int i = 0; i < jsonArray.length(); i++){
+                        JSONObject jsonData = jsonArray.getJSONObject(i);
+                        String keyWord = jsonData.getString("category");
+                        if(!keyWord.equals(dupeWord)){
+                            dupeWord = keyWord;
+                            categoryArray.add(keyWord);
+                            InitDressesList(categoryArray.get(temp_num),temp_num);
+                            temp_num++;
+                        }
+                    }
+
+                    for(int i=0; i<categoryArray.size();i++){
+                        productsArray.put(categoryArray.get(i), new ArrayList<String>());
+                        for(int j = 0; j < jsonArray.length(); j++){
+                            JSONObject jsonData = jsonArray.getJSONObject(j);
+                            if(categoryArray.get(i).equals(jsonData.getString("category"))){
+                                productsArray.get(categoryArray.get(i)).add(jsonData.getString("name"));
+                            }
+                        }
+                    }
+                    InitDresses(opreDressList);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    //初始化禮服種類按鈕，每次按下按鈕，就更改資料重新載入大小圖
-    public void InitButtons(Button bt,final int i){
-        bt.setOnClickListener(new Button.OnClickListener() {
+    public void InitDressesList(String category, final int i){
+        Button button = new Button(getActivity());
+        LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT); //設定值的layout_width跟layout_height
+        button.setLayoutParams(layoutParams1); //將上面的設定值，設定入新增的按鈕裡
+        button.setBackgroundResource(R.drawable.button_style_2); //設定背景
+        button.setText(category); //設定按鈕文字
+        button.setGravity(Gravity.CENTER); //設定文字位置置中
+        button.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                InitViewPager(i);
+                InitDresses(i);
             }
         });
+        dresses_list.addView(button); //將按鈕新增到 dresses_list 這個 LinearLayout 裡
     }
 
-    public void InitViewPager(int dress){
+    public void InitViewPager(int cdressList){
 
-        //當按下禮服種類時，傳送按下的代號，用switch case判斷選擇的項目
-        switch(dress){
-            case 0:
-                imgIdArray = null;
-                iconIdArray = null;
-                cdressIdArray = null;
-                imgIdArray = new ItemGroupDB().dress_wedding; //載入禮服大圖陣列
-                iconIdArray = new ItemGroupDB().dress_wedding_icon; //載入禮服小圖陣列
-                cdressIdArray = new ItemGroupDB().dress_cwedding; //載入禮服c圖陣列
-                break;
-            case 1:
-                imgIdArray = null;
-                iconIdArray = null;
-                cdressIdArray = null;
-                imgIdArray = new ItemGroupDB().dress_maxi;
-                iconIdArray = new ItemGroupDB().dress_maxi_icon;
-                cdressIdArray = new ItemGroupDB().dress_cmaxi;
-                break;
-            case 2:
-                imgIdArray = null;
-                iconIdArray = null;
-                cdressIdArray = null;
-                imgIdArray = new ItemGroupDB().dress_cocktail;
-                iconIdArray = new ItemGroupDB().dress_cocktail_icon;
-                cdressIdArray = new ItemGroupDB().dress_ccocktail;
-                break;
-            case 3:
-                imgIdArray = null;
-                iconIdArray = null;
-                cdressIdArray = null;
-                imgIdArray = new ItemGroupDB().dress_white;
-                iconIdArray = new ItemGroupDB().dress_white_icon;
-                cdressIdArray = new ItemGroupDB().dress_cwhite;
-                break;
-            case 4:
-                imgIdArray = null;
-                iconIdArray = null;
-                cdressIdArray = null;
-                imgIdArray = new ItemGroupDB().dress_black;
-                iconIdArray = new ItemGroupDB().dress_black_icon;
-                cdressIdArray = new ItemGroupDB().dress_cblack;
-                break;
-        }
-
-        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(getContext(), imgIdArray, cdressIdArray, dress);
+        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(getActivity(), cdressList);
         viewPager.setAdapter(mCustomPagerAdapter);
 
         //以下利用交換adapter的方式，在資料更新之後能更新禮服大圖，否則禮服大圖依然是舊畫面
@@ -124,26 +224,28 @@ public class DressesFragment extends Fragment {
         viewPager.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         //===============================================
-        InitDresses();
-        viewPager.setCurrentItem(0);
+        viewPager.setCurrentItem(opreDress);
     }
 
     //初始化禮服小圖
-    public void InitDresses(){
+    public void InitDresses(int cdressList){
         dresses.removeAllViews(); //將舊的禮服小圖全部刪除，不然會新增到舊圖組的後方
 
-        for(int i=0; i<iconIdArray.length; i++){
-            ImageView iv = new ImageView(getContext());
+        for(int i=0; i<productsArray.get(categoryArray.get(cdressList)).size(); i++){
+            ImageView iv = new ImageView(getActivity());
             LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.MATCH_PARENT);  //將寬度設為100dp
             layoutParams1.setMargins(2, 4, 2, 0); // 讓每個小圖產生間隔，左2dp、上4dp、右2dp、下0dp
             iv.setLayoutParams(layoutParams1);
-            iv.setScaleType(ImageView.ScaleType.CENTER_INSIDE); //ScaleType.CENTER_INSIDE會讓圖符合邊框的長或寬，整張納入並且置中
-            iv.setImageResource(iconIdArray[i]); //設置 android:src
+            iv.setScaleType(ImageView.ScaleType.FIT_CENTER); //ScaleType.CENTER_INSIDE會讓圖符合邊框的長或寬，整張納入並且置中
+            String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(cdressList)).get(i)+".png";
+            Picasso.with(getActivity()).load(imageUrl).into(iv);
             iv.setBackgroundResource(R.color.white); //設置 android:background
             iv.setClickable(true); //設置android:clickable="true"，讓小圖能夠點選
             dresses.addView(iv);
             InitDressClick(iv,i);
         }
+
+        InitViewPager(cdressList);
     }
 
     //初始化小圖點選
@@ -159,20 +261,17 @@ public class DressesFragment extends Fragment {
     public class CustomPagerAdapter extends PagerAdapter{
         Context mContext;
         LayoutInflater mLayoutInflater;
-        int[] mResources, mcdresses;
-        int preDressList;
+        int mcdressList;
 
-        CustomPagerAdapter(Context context, int[] dresses, int[] cdresses, int pdl) {
+        CustomPagerAdapter(Context context, int cdressList) {
             mContext = context;
             mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            mResources = dresses;
-            mcdresses = cdresses;
-            preDressList = pdl;
+            mcdressList = cdressList;
         }
 
         @Override
         public int getCount() {
-            return mResources.length;
+            return productsArray.get(categoryArray.get(mcdressList)).size();
         }
 
         @Override
@@ -187,15 +286,18 @@ public class DressesFragment extends Fragment {
             ImageView imageView = (ImageView) itemView.findViewById(R.id.IV_dresses);
             LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             imageView.setLayoutParams(layoutParams1);
-            imageView.setBackgroundResource(mResources[position]);
+            final String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(mcdressList)).get(position)+".png";
+            Picasso.with(getActivity()).load(imageUrl).into(imageView);
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             imageView.setClickable(true);
             imageView.setOnClickListener(new ImageView.OnClickListener() {
                 @Override
                 public void onClick(View arg0) {
-                    opreDressList = preDressList;
+                    opreDressList = mcdressList;
+                    opreDress = position;
                     D_ConfirmFragment frg = new D_ConfirmFragment();
                     Bundle bundle = new Bundle();
-                    bundle.putInt("selected_dress", mcdresses[position]);
+                    bundle.putString("selected_dress", imageUrl);
                     frg.setArguments(bundle);
 
                     FragmentManager fragMgr = getActivity().getSupportFragmentManager();

@@ -2,10 +2,10 @@ package com.gmf.wedding;
 
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
@@ -15,6 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 
 /**
@@ -41,8 +44,11 @@ public class D_ConfirmFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_d_confirm, container, false);
 
+        ((ProjectActivity)getActivity()).drawerLock(true);
+
         Bundle bundle = getArguments();
-        int imgId = bundle.getInt("selected_dress");
+        String imgUrl = bundle.getString("selected_dress");
+        //int imgId = bundle.getInt("selected_dress");
 
         dm = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm); //獲取分辨率
@@ -50,7 +56,24 @@ public class D_ConfirmFragment extends Fragment {
         iv_selected = (ImageView)rootView.findViewById(R.id.IV_dc_dress);
         iv_stats = (ImageView)rootView.findViewById(R.id.IV_dc_stats);
 
-        bm = BitmapFactory.decodeResource(getResources(), imgId);
+        Picasso.with(getActivity())
+                .load(imgUrl)
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded (final Bitmap bitmap, Picasso.LoadedFrom from){
+                        /* Save the bitmap or do something with it here */
+
+                        //Set it in the ImageView
+                        bm = bitmap;
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {}
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {}
+                });
+        //bm = BitmapFactory.decodeResource(getResources(), imgId);
 
         savedMatrix.setTranslate((dm.widthPixels - bm.getWidth())/2 , (dm.heightPixels - bm.getHeight()) / 2);
         iv_selected.setImageMatrix(savedMatrix);
