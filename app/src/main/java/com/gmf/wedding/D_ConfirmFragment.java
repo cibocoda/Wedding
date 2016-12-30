@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -58,6 +59,7 @@ public class D_ConfirmFragment extends Fragment {
 
         Picasso.with(getActivity())
                 .load(imgUrl)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
                 .into(new Target() {
                     @Override
                     public void onBitmapLoaded (final Bitmap bitmap, Picasso.LoadedFrom from){

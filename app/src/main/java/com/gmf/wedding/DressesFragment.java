@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -238,7 +239,7 @@ public class DressesFragment extends Fragment {
             iv.setLayoutParams(layoutParams1);
             iv.setScaleType(ImageView.ScaleType.CENTER_INSIDE); //ScaleType.CENTER_INSIDE會讓圖符合邊框的長或寬，整張納入並且置中
             String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(cdressList)).get(i)+".png";
-            Picasso.with(getActivity()).load(imageUrl).placeholder( R.drawable.progress_animation ).into(iv);
+            Picasso.with(getActivity()).load(imageUrl).networkPolicy(NetworkPolicy.NO_CACHE).placeholder( R.drawable.progress_animation ).into(iv);
             iv.setBackgroundResource(R.color.white); //設置 android:background
             iv.setClickable(true); //設置android:clickable="true"，讓小圖能夠點選
             dresses.addView(iv);
@@ -288,7 +289,7 @@ public class DressesFragment extends Fragment {
             imageView.setLayoutParams(layoutParams1);
             imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             final String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(mcdressList)).get(position)+".png";
-            Picasso.with(getActivity()).load(imageUrl).into(imageView);
+            Picasso.with(getActivity()).load(imageUrl).networkPolicy(NetworkPolicy.NO_CACHE).into(imageView);
             imageView.setClickable(true);
             imageView.setOnClickListener(new ImageView.OnClickListener() {
                 @Override
