@@ -90,8 +90,8 @@ public class DressesFragment extends Fragment {
         @Override
         protected String doInBackground(String... params) {
             try{
-                // Enter URL address where your php file resides
-                url = new URL("http://zoptest.esy.es/wedding_management/DBproducts.php");
+                // Enter URL address where your php file resides http://zoptest.esy.es/
+                url = new URL("http://192.168.1.103/wedding_management/DBproducts.php");
 
             }catch (MalformedURLException e){
                 e.printStackTrace();
@@ -226,6 +226,7 @@ public class DressesFragment extends Fragment {
         adapter.notifyDataSetChanged();
         //===============================================
         viewPager.setCurrentItem(opreDress);
+
     }
 
     //初始化禮服小圖
@@ -284,28 +285,39 @@ public class DressesFragment extends Fragment {
         public Object instantiateItem(ViewGroup container, final int position) {
             View itemView = mLayoutInflater.inflate(R.layout.items_dresses, container, false);
 
-            ImageView imageView = (ImageView) itemView.findViewById(R.id.IV_dresses);
+            final ImageView imageView = (ImageView) itemView.findViewById(R.id.IV_dresses);
             LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             imageView.setLayoutParams(layoutParams1);
             imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            final String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(mcdressList)).get(position)+".png";
-            Picasso.with(getActivity()).load(imageUrl).networkPolicy(NetworkPolicy.NO_CACHE).into(imageView);
-            imageView.setClickable(true);
-            imageView.setOnClickListener(new ImageView.OnClickListener() {
-                @Override
-                public void onClick(View arg0) {
-                    opreDressList = mcdressList;
-                    opreDress = position;
-                    D_ConfirmFragment frg = new D_ConfirmFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("selected_dress", imageUrl);
-                    frg.setArguments(bundle);
+            final String imageUrl = "http://zoptest.esy.es/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(mcdressList)).get(position)+".png";
+            Picasso.with(getActivity())
+                    .load(imageUrl).networkPolicy(NetworkPolicy.NO_CACHE)
+                    .into(imageView, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            imageView.setClickable(true);
+                            imageView.setOnClickListener(new ImageView.OnClickListener() {
+                                @Override
+                                public void onClick(View arg0) {
+                                    opreDressList = mcdressList;
+                                    opreDress = position;
+                                    D_ConfirmFragment frg = new D_ConfirmFragment();
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("selected_dress", imageUrl);
+                                    frg.setArguments(bundle);
 
-                    FragmentManager fragMgr = getActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = fragMgr.beginTransaction();
-                    transaction.setCustomAnimations(R.anim.fragment_in_from_right_side, R.anim.fragment_out_from_left_side, R.anim.fragment_in_from_left_side, R.anim.fragment_out_from_right_side).replace(R.id.FL_dresses, frg, frg.getClass().getName()).addToBackStack(null).commit();
-                }
-            });
+                                    FragmentManager fragMgr = getActivity().getSupportFragmentManager();
+                                    FragmentTransaction transaction = fragMgr.beginTransaction();
+                                    transaction.setCustomAnimations(R.anim.fragment_in_from_right_side, R.anim.fragment_out_from_left_side, R.anim.fragment_in_from_left_side, R.anim.fragment_out_from_right_side).replace(R.id.FL_dresses, frg, frg.getClass().getName()).addToBackStack(null).commit();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
 
             container.addView(itemView);
 

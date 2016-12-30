@@ -88,7 +88,7 @@ public class AccountActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try{
-                // Enter URL address where your php file resides
+                // Enter URL address where your php file resides http://zoptest.esy.es/
                 url = new URL("http://192.168.1.103/wedding_management/login.inc.php");
 
             }catch (MalformedURLException e){
