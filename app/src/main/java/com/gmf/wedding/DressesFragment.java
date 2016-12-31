@@ -51,7 +51,8 @@ public class DressesFragment extends Fragment {
     private Map<String,ArrayList<String>> productsArray = new HashMap<String,ArrayList<String>>();
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
-    private int opreDressList = 0, opreDress = 0;
+    private int opreDressList = 0, opreDress = 0, cdressCount;
+    private ProgressDialog pdLoading;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,6 +67,7 @@ public class DressesFragment extends Fragment {
         dresses_list = (LinearLayout) rootView.findViewById(R.id.LL_dresses_list);
 
         ((ProjectActivity)getActivity()).drawerLock(false);
+        pdLoading = new ProgressDialog(getActivity());
 
         new AsyncProducts().execute("true");
 
@@ -73,7 +75,7 @@ public class DressesFragment extends Fragment {
     }
 
     public class AsyncProducts extends AsyncTask<String, String, String> {
-        ProgressDialog pdLoading = new ProgressDialog(getActivity());
+        //ProgressDialog pdLoading = new ProgressDialog(getActivity());
         HttpURLConnection conn;
         URL url = null;
 
@@ -162,7 +164,7 @@ public class DressesFragment extends Fragment {
         protected void onPostExecute(String result){
             //this method will be running on UI thread
 
-            pdLoading.dismiss();
+            //pdLoading.dismiss();
 
             if (result.equalsIgnoreCase("exception") || result.equalsIgnoreCase("unsuccessful")){
                 Toast.makeText(getActivity(), "連線問題", Toast.LENGTH_LONG).show();
@@ -233,6 +235,12 @@ public class DressesFragment extends Fragment {
     public void InitDresses(int cdressList){
         dresses.removeAllViews(); //將舊的禮服小圖全部刪除，不然會新增到舊圖組的後方
 
+        pdLoading.setMessage("\tLoading...");
+        pdLoading.setCancelable(false);
+        pdLoading.show();
+
+        cdressCount = productsArray.get(categoryArray.get(cdressList)).size();
+
         for(int i=0; i<productsArray.get(categoryArray.get(cdressList)).size(); i++){
             ImageView iv = new ImageView(getActivity());
             LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.MATCH_PARENT);  //將寬度設為100dp
@@ -240,7 +248,23 @@ public class DressesFragment extends Fragment {
             iv.setLayoutParams(layoutParams1);
             iv.setScaleType(ImageView.ScaleType.CENTER_INSIDE); //ScaleType.CENTER_INSIDE會讓圖符合邊框的長或寬，整張納入並且置中
             String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(cdressList)).get(i)+".png";
-            Picasso.with(getActivity()).load(imageUrl).networkPolicy(NetworkPolicy.NO_CACHE).placeholder( R.drawable.progress_animation ).into(iv);
+            Picasso.with(getActivity())
+                    .load(imageUrl).networkPolicy(NetworkPolicy.NO_CACHE)
+                    .placeholder( R.drawable.progress_animation )
+                    .into(iv, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            cdressCount--;
+                            if(cdressCount == 0){
+                                pdLoading.dismiss();
+                            }
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
             iv.setBackgroundResource(R.color.white); //設置 android:background
             iv.setClickable(true); //設置android:clickable="true"，讓小圖能夠點選
             dresses.addView(iv);
