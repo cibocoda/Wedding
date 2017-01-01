@@ -51,8 +51,7 @@ public class DressesFragment extends Fragment {
     private Map<String,ArrayList<String>> productsArray = new HashMap<String,ArrayList<String>>();
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int READ_TIMEOUT = 15000;
-    private int opreDressList = 0, opreDress = 0, cdressCount;
-    private ProgressDialog pdLoading;
+    private int opreDressList = 0, opreDress = 0, cdressCount, cdressListSize;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,7 +66,6 @@ public class DressesFragment extends Fragment {
         dresses_list = (LinearLayout) rootView.findViewById(R.id.LL_dresses_list);
 
         ((ProjectActivity)getActivity()).drawerLock(false);
-        pdLoading = new ProgressDialog(getActivity());
 
         new AsyncProducts().execute("true");
 
@@ -75,7 +73,7 @@ public class DressesFragment extends Fragment {
     }
 
     public class AsyncProducts extends AsyncTask<String, String, String> {
-        //ProgressDialog pdLoading = new ProgressDialog(getActivity());
+        ProgressDialog pdLoading = new ProgressDialog(getActivity());
         HttpURLConnection conn;
         URL url = null;
 
@@ -164,8 +162,6 @@ public class DressesFragment extends Fragment {
         protected void onPostExecute(String result){
             //this method will be running on UI thread
 
-            //pdLoading.dismiss();
-
             if (result.equalsIgnoreCase("exception") || result.equalsIgnoreCase("unsuccessful")){
                 Toast.makeText(getActivity(), "連線問題", Toast.LENGTH_LONG).show();
             }else{
@@ -193,6 +189,9 @@ public class DressesFragment extends Fragment {
                             }
                         }
                     }
+
+                    pdLoading.dismiss();
+
                     InitDresses(opreDressList);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -235,13 +234,19 @@ public class DressesFragment extends Fragment {
     public void InitDresses(int cdressList){
         dresses.removeAllViews(); //將舊的禮服小圖全部刪除，不然會新增到舊圖組的後方
 
-        pdLoading.setMessage("\tLoading...");
-        pdLoading.setCancelable(false);
-        pdLoading.show();
-
         cdressCount = productsArray.get(categoryArray.get(cdressList)).size();
+        cdressListSize = cdressCount;
 
-        for(int i=0; i<productsArray.get(categoryArray.get(cdressList)).size(); i++){
+        final ProgressDialog mProgressDialog = new ProgressDialog(getActivity());
+        mProgressDialog.setMessage("禮服準備中");
+        mProgressDialog.setIndeterminate(false);
+        mProgressDialog.setProgress(0);
+        mProgressDialog.setMax(cdressListSize);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
+
+        for(int i=0; i<cdressListSize; i++){
             ImageView iv = new ImageView(getActivity());
             LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.MATCH_PARENT);  //將寬度設為100dp
             layoutParams1.setMargins(2, 4, 2, 0); // 讓每個小圖產生間隔，左2dp、上4dp、右2dp、下0dp
@@ -255,8 +260,9 @@ public class DressesFragment extends Fragment {
                         @Override
                         public void onSuccess() {
                             cdressCount--;
+                            mProgressDialog.setProgress(cdressListSize - cdressCount);
                             if(cdressCount == 0){
-                                pdLoading.dismiss();
+                                mProgressDialog.dismiss();
                             }
                         }
 
