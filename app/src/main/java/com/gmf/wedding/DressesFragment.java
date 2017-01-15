@@ -103,6 +103,7 @@ public class DressesFragment extends Fragment {
                 conn = (HttpURLConnection)url.openConnection();
                 conn.setReadTimeout(READ_TIMEOUT);
                 conn.setConnectTimeout(CONNECTION_TIMEOUT);
+				conn.setRequestMethod("POST");
 
                 // setDoInput and setDoOutput method depict handling of both send and receive
                 conn.setDoInput(true);
@@ -189,11 +190,10 @@ public class DressesFragment extends Fragment {
                             }
                         }
                     }
-
                     pdLoading.dismiss();
-
                     InitDresses(opreDressList);
                 } catch (JSONException e) {
+                    Toast.makeText(getActivity(), "json問題", Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
             }
@@ -319,7 +319,7 @@ public class DressesFragment extends Fragment {
             LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             imageView.setLayoutParams(layoutParams1);
             imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            final String imageUrl = "http://zoptest.esy.es/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(mcdressList)).get(position)+".png";
+            final String imageUrl = "http://192.168.1.103/wedding_management/pictures/photo/"+productsArray.get(categoryArray.get(mcdressList)).get(position)+".png";
             Picasso.with(getActivity())
                     .load(imageUrl).networkPolicy(NetworkPolicy.NO_CACHE)
                     .into(imageView, new com.squareup.picasso.Callback() {
